@@ -1,0 +1,54 @@
+# Works for Snort 2.9.15.1. Needs more testing to see if changes are required for snort versions less than 2.9.18.1, and greater than 2.9.14.1
+FROM ubuntu:24.04
+MAINTAINER David Wharton
+
+ARG SNORT_VERSION
+ARG DAQ_VERSION
+
+# tcpdump is for pcap analysis; not *required* for
+#  the agent but nice to have....
+# Also added: libtool, libtirpc-dev, python3 and python3-pip
+
+RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    python3 python3-pip \
+    tcpdump \
+    automake libtool autoconf \
+    build-essential make flex bison \
+    libpcap-dev libpcre3-dev libtirpc-dev \
+    libcap-ng-dev libdumbnet-dev \
+    zlib1g-dev liblzma-dev openssl libssl-dev \
+    libnghttp2-dev libluajit-5.1-dev && ldconfig
+
+# Need to move headers from libtirpc-dev from /usr/include/tirpc/rpc to /usr/include/rpc.
+# Additionally need to move /usr/include/tirpc/netconfig.h to /usr/include
+RUN cp -r /usr/include/tirpc/rpc/* /usr/include/rpc/ && cp /usr/include/tirpc/netconfig.h /usr/include
+
+# for debugging agent
+RUN apt-get install -y less nano
+
+# download, build, and install Snort from source
+RUN mkdir -p /src/snort-${SNORT_VERSION} && mkdir -p /etc/snort
+WORKDIR /src
+
+# DAQ.  Apparently DAQ will sometime fail building with multiple make jobs.
+ADD https://www.snort.org/downloads/archive/snort/daq-${DAQ_VERSION}.tar.gz daq-${DAQ_VERSION}.tar.gz
+RUN tar -zxf daq-${DAQ_VERSION}.tar.gz && cd daq-${DAQ_VERSION} && autoreconf -f -i && ./configure && make && make install
+
+# Snort
+# Had to add CFLAGS="-fcommon" to the configure script parameters, otherwise would get "multiple definitions" error for a great many functions.
+# What does CFLAGS="-fcommon" do? https://gcc.gnu.org/onlinedocs/gcc/Code-Gen-Options.html#index-fcommon
+ADD https://www.snort.org/downloads/archive/snort/snort-${SNORT_VERSION}.tar.gz snort-${SNORT_VERSION}.tar.gz
+RUN tar -zxf snort-${SNORT_VERSION}.tar.gz -C snort-${SNORT_VERSION} --strip-components=1 && \
+    cd /src/snort-${SNORT_VERSION} && ./configure --enable-sourcefire --enable-debug --enable-buffer-dump CFLAGS="-fcommon" && make -j $(nproc) && make install && \
+    mkdir /usr/local/lib/snort_dynamicrules && ldconfig
+
+RUN cp -t /etc/snort/ /src/snort-${SNORT_VERSION}/etc/classification.config /src/snort-${SNORT_VERSION}/etc/file_magic.conf \
+    /src/snort-${SNORT_VERSION}/etc/gen-msg.map /src/snort-${SNORT_VERSION}/etc/reference.config \
+    /src/snort-${SNORT_VERSION}/etc/threshold.conf /src/snort-${SNORT_VERSION}/etc/unicode.map; exit 0
+
+RUN mkdir -p /opt/dalton-agent/
+WORKDIR /opt/dalton-agent
+COPY dalton-agent.py /opt/dalton-agent/dalton-agent.py
+COPY dalton-agent.conf /opt/dalton-agent/dalton-agent.conf
+
+CMD python3 /opt/dalton-agent/dalton-agent.py -c /opt/dalton-agent/dalton-agent.conf 2>&1
