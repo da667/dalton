@@ -2,7 +2,7 @@
 # Works for Snort 2.9.1.1 and later; previous versions are more
 #  nuanced with libraries and compile dependencies so if you need
 #  a previous version, just build your own.
-FROM ubuntu:18.04
+FROM ubuntu:24.04
 MAINTAINER David Wharton
 
 ARG SNORT_VERSION
@@ -10,15 +10,21 @@ ARG DAQ_VERSION
 
 # tcpdump is for pcap analysis; not *required* for
 #  the agent but nice to have....
+# Also added: libtool, libtirpc-dev, python3 and python3-pip
+
 RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    python3.8 \
+    python3 python3-pip \
     tcpdump \
-    automake autoconf \
+    automake libtool autoconf \
     build-essential make flex bison \
-    libpcap-dev libpcre3-dev \
+    libpcap-dev libpcre3-dev libtirpc-dev \
     libcap-ng-dev libdumbnet-dev \
     zlib1g-dev liblzma-dev openssl libssl-dev \
     libnghttp2-dev libluajit-5.1-dev && ldconfig
+
+# Need to move headers from libtirpc-dev from /usr/include/tirpc/rpc to /usr/include/rpc.
+# Additionally need to move /usr/include/tirpc/netconfig.h to /usr/include
+RUN cp -r /usr/include/tirpc/rpc/* /usr/include/rpc/ && cp /usr/include/tirpc/netconfig.h /usr/include
 
 # for debugging agent
 RUN apt-get install -y less nano
@@ -26,9 +32,11 @@ RUN apt-get install -y less nano
 # download, build, and install Snort from source
 RUN mkdir -p /src/snort-${SNORT_VERSION} && mkdir -p /etc/snort
 WORKDIR /src
+
 # DAQ.  Apparently DAQ will sometime fail building with multiple make jobs.
 ADD https://www.snort.org/downloads/archive/snort/daq-${DAQ_VERSION}.tar.gz daq-${DAQ_VERSION}.tar.gz
-RUN tar -zxf daq-${DAQ_VERSION}.tar.gz && cd daq-${DAQ_VERSION} && ./configure && make && make install
+RUN tar -zxf daq-${DAQ_VERSION}.tar.gz && cd daq-${DAQ_VERSION} && autoreconf -f -i && ./configure && make && make install
+
 # Snort
 ADD https://www.snort.org/downloads/archive/snort/snort-${SNORT_VERSION}.tar.gz snort-${SNORT_VERSION}.tar.gz
 RUN tar -zxf snort-${SNORT_VERSION}.tar.gz -C snort-${SNORT_VERSION} --strip-components=1 && \
@@ -44,4 +52,4 @@ WORKDIR /opt/dalton-agent
 COPY dalton-agent.py /opt/dalton-agent/dalton-agent.py
 COPY dalton-agent.conf /opt/dalton-agent/dalton-agent.conf
 
-CMD python3.8 /opt/dalton-agent/dalton-agent.py -c /opt/dalton-agent/dalton-agent.conf 2>&1
+CMD python3 /opt/dalton-agent/dalton-agent.py -c /opt/dalton-agent/dalton-agent.conf 2>&1
