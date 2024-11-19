@@ -1,6 +1,5 @@
 # This snort Dockerfile fixes "multiple definition" compile errors for Snort.
-# These errors will prevent Snort 2.9.15.1, 2.9.9.0, 2.9.8.3, 2.9.7.5, 2.9.3.1 and 2.9.1.1 from compiling on modern linux (Ubuntu 24.04).
-# I cannot download 2.9.19.x, nor 2.9.13.x - 2.9.10.x for testing.
+# These errors will prevent Snort 2.9.15, 2.9.11, 2.9.10, 2.9.9.0, 2.9.8.3, 2.9.7.5, 2.9.3.1 and 2.9.1.1 from compiling on modern linux (Ubuntu 24.04).
 FROM ubuntu:24.04
 MAINTAINER David Wharton
 
