@@ -293,6 +293,8 @@ services:
 #    restart: always
 
 # NOTE: Snort 2.9.16 is when DAQ version went to 2.0.7 (from 2.0.6).
+# NOTE: Snort 2.9.15.x requires using Dockerfile_snort_MD_CFLAGS_FIX or compiling snort WILL fail.
+# This dockerfile is necessary to fix the multiple definitions compile errors via CFLAGS="-fcommon"
 
 # Snort 2.9.15.1 from source
 #  agent-snort-2.9.15.1:
@@ -311,11 +313,14 @@ services:
 #      - AGENT_DEBUG=${AGENT_DEBUG}
 #    restart: always
 
+#Snort versions 2.9.14.x through 2.9.12.x MUST use Dockerfile_snort_gettid_FIX or compiling snort WILL fail.
+#This dockerfile utilizes a custom util.h, and CFLAGS="-fcommon" to fix both the gettid and multiple definitions errors in one go.
+
 # Snort 2.9.14.1 from source
 #  agent-snort-2.9.14.1:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort_2.9.14.1
+#      dockerfile: Dockerfiles/Dockerfile_snort_gettid_FIX
 #      args:
 #        - SNORT_VERSION=2.9.14.1
 #        - DAQ_VERSION=2.0.6
@@ -327,6 +332,9 @@ services:
 #    environment:
 #      - AGENT_DEBUG=${AGENT_DEBUG}
 #    restart: always
+
+# NOTE: All versions of snort from 2.9.11.x and prior require the Dockerfile_snort_MD_CFLAGS_FIX or compiling snort WILL fail
+# This dockerfile is necessary to fix the multiple definitions compile errors via CFLAGS="-fcommon"
 
 # Snort 2.9.9.0 from source
 #  agent-snort-2.9.9.0:
