@@ -1,4 +1,6 @@
 # Performs specific actions needed to compile Snort 2.9.14, 2.9.13, and 2.9.12 against newer GLIBC versions
+# To do this, we must utilize a custom util.h that imports syscall.h in order to properly call gettid (get thread id)
+# also utilizes the CFLAGS="-fcommon" fix to resolve the "multiple definitions" error, that affects all versions of snort 2.9.15 and prior
 FROM ubuntu:24.04
 MAINTAINER David Wharton
 
