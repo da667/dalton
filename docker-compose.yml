@@ -298,7 +298,7 @@ services:
 #  agent-snort-2.9.15.1:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_MD_CFLAGS_FIX
 #      args:
 #        - SNORT_VERSION=2.9.15.1
 #        - DAQ_VERSION=2.0.6
@@ -315,7 +315,7 @@ services:
 #  agent-snort-2.9.14.1:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_2.9.14.1
 #      args:
 #        - SNORT_VERSION=2.9.14.1
 #        - DAQ_VERSION=2.0.6
@@ -332,7 +332,7 @@ services:
 #  agent-snort-2.9.9.0:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_MD_CFLAGS_FIX
 #      args:
 #        - SNORT_VERSION=2.9.9.0
 #        - DAQ_VERSION=2.0.6
@@ -349,7 +349,7 @@ services:
 #  agent-snort-2.9.8.3:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_MD_CFLAGS_FIX
 #      args:
 #        - SNORT_VERSION=2.9.8.3
 #        - DAQ_VERSION=2.0.6
@@ -366,7 +366,7 @@ services:
 #  agent-snort-2.9.7.5:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_MD_CFLAGS_FIX
 #      args:
 #        - SNORT_VERSION=2.9.7.5
 #        - DAQ_VERSION=2.0.6
@@ -383,7 +383,7 @@ services:
 #  agent-snort-2.9.3.1:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_MD_CFLAGS_FIX
 #      args:
 #        - SNORT_VERSION=2.9.3.1
 #        - DAQ_VERSION=2.0.6
@@ -400,7 +400,7 @@ services:
 #  agent-snort-2.9.1.1:
 #    build:
 #      context: ./dalton-agent
-#      dockerfile: Dockerfiles/Dockerfile_snort
+#      dockerfile: Dockerfiles/Dockerfile_snort_MD_CFLAGS_FIX
 #      args:
 #        - SNORT_VERSION=2.9.1.1
 #        - DAQ_VERSION=2.0.6
