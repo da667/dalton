@@ -27,10 +27,6 @@ RUN apt-get update -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Need to move headers from libtirpc-dev from /usr/include/tirpc/rpc to /usr/include/rpc.
-# Additionally need to move /usr/include/tirpc/netconfig.h to /usr/include
-RUN cp -r /usr/include/tirpc/rpc/* /usr/include/rpc/ && cp /usr/include/tirpc/netconfig.h /usr/include
-
 # for debugging agent
 # RUN apt-get install -y less nano
 
@@ -50,7 +46,7 @@ RUN tar -zxf daq-${DAQ_VERSION}.tar.gz && cd daq-${DAQ_VERSION} && autoreconf -f
 COPY Dockerfiles/util.h /src/util.h
 ADD https://www.snort.org/downloads/archive/snort/snort-${SNORT_VERSION}.tar.gz snort-${SNORT_VERSION}.tar.gz
 RUN tar -zxf snort-${SNORT_VERSION}.tar.gz -C snort-${SNORT_VERSION} --strip-components=1 && \
-    cd /src/snort-${SNORT_VERSION} && mv /src/util.h src/ && ./configure --enable-sourcefire --enable-debug --enable-buffer-dump CFLAGS="-fcommon" && make -j $(nproc) && make install && \
+    cd /src/snort-${SNORT_VERSION} && mv /src/util.h src/ && ./configure --enable-sourcefire --enable-debug --enable-buffer-dump CFLAGS="-I/usr/include/tirpc -fcommon" && make -j $(nproc) && make install && \
     mkdir /usr/local/lib/snort_dynamicrules && ldconfig
 
 RUN cp -t /etc/snort/ /src/snort-${SNORT_VERSION}/etc/classification.config /src/snort-${SNORT_VERSION}/etc/file_magic.conf \
